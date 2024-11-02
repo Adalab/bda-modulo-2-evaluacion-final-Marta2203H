@@ -186,3 +186,72 @@ SELECT c.name AS category_name, ROUND(AVG(f.length),2) AS avg_length
 		USING (category_id)
 GROUP BY c.name 
 HAVING AVG(f.length) > 120;
+
+/* Encuentra los actores que han actuado en al menos 5 películas y 
+muestra el nombre del actor junto con la cantidad de películas en las que han actuado.
+
+-- INNER JOIN coge los artistas de las dos tablas que coinciden, es decir que han actuado en alguna película
+GROUP BY agrupo por nombre y apellidos de la tabla actor
+HAVING  filtra los resultados para incluir solos los que han participado al menos en 5 películas*/
+
+SELECT a.first_name, a.last_name, COUNT(fa.film_id) AS total_films
+	FROM actor AS a
+	INNER JOIN film_actor AS fa
+		USING (actor_id) 
+GROUP BY a.first_name, a.last_name
+HAVING COUNT(fa.film_id) >= 5;
+
+/* 22. Encuentra el título de todas las películas que fueron alquiladas por más de 5 días. 
+Utiliza una subconsulta para encontrar los rental_ids con una duración superior a 5 días y 
+luego selecciona las películas correspondientes.
+-- Lo primero que he hecho es una query sencilla para ver que peliculas has sido alquiladas por más de 5 días restando "return_date - rental_date"
+-- DISTINCT para que los titulos no se repitan
+-- Seleccion todos los "film_id" de la tabla film y hago una subconsulta para que me diga cuales de todas las peliculas has sido alquiladas por más de 5 días*/
+
+SELECT rental_id
+	FROM rental AS r 
+	WHERE DAY(return_date) - DAY(rental_date) > 5;
+    
+SELECT DISTINCT f.title
+	FROM film AS f 
+WHERE f.film_id IN (SELECT rental_id
+						FROM rental AS r 
+						WHERE DAY(return_date) - DAY(rental_date) > 5);
+
+/* 23. Encuentra el nombre y apellido de los actores que no han actuado en ninguna película de la categoría "Horror".
+Utiliza una subconsulta para encontrar los actores que han actuado en películas de la categoría "Horror" y luego
+exclúyelos de la lista de actores.
+-- Primero con una query secilla busco los actures que han actuado en una alguna pelicula de Horror, usando el INNER JOIN para coger los valores que tienen en común y uso WHERE para filtrar por nombre de categoría "Horror"
+ -- En la query princial seleciono el nombre y apellido de la tabla actor 
+ IS NOT antes de añadir la subconsulta por que lo que me interesa saber son los actures que no han actuado en ninguna película de "Horror" y le añado la subconsulta*/
+
+SELECT fa.actor_id
+    FROM film_actor AS fa
+    INNER JOIN film_category AS fc
+		USING(film_id)
+    INNER JOIN category AS c
+		USING (category_id)
+	WHERE c.name = 'Horror';
+
+SELECT a.first_name, a.last_name
+	FROM actor AS a
+	WHERE a.actor_id NOT IN (SELECT fa.actor_id
+									FROM film_actor AS fa
+										INNER JOIN film_category AS fc
+											USING(film_id)
+										INNER JOIN category AS c
+											USING (category_id)
+									WHERE c.name = 'Horror');
+
+/* 24. BONUS: Encuentra el título de las películas que son comedias y tienen una duración mayor a 180 minutos en la
+tabla film.
+-- INNER JOIN unir las tablas y que nos devuelva los datos que coinciden en las tablas
+-- WHERE en la tabla category buscamos la categoria "comedy" y en la tabla film buscamos las que tengan una duración mayor a 180 minutos*/
+
+SELECT title
+	FROM film AS f
+		INNER JOIN film_category AS fc
+			USING (film_id )
+		INNER JOIN category AS c
+			USING (category_id)
+WHERE c.name = 'Comedy' AND f.length >180 ; 

@@ -1,4 +1,4 @@
-Este ejercicio de evaluación, en el que expongo mis conocimientos de SQL y BBD. Utilizando la BBD Sakila que simula ser un videoclub.
+Este es mi ejercicio de evaluación, en el que expongo mis conocimientos de SQL y BBD. Utilizando la BBD Sakila que simula ser un videoclub.
 
 Los requisitos del ejercio de evaluación son los siguientes:
 
